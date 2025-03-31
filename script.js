@@ -36,13 +36,24 @@ function connectWebSocket() {
             console.log("Ontvangen data:", data);
     
             // Controleer of "sensor" en "temperature" bestaan voordat je ze gebruikt
+            if (data.sensor && "time" in data.sensor) {
+                document.getElementById("time").innerText = 
+                    "Tijd: " + data.sensor.time;
+            } else {
+                console.warn("Geen tijdsaanduiding in bericht:", data);
+            }
+
+
+
+
+            // Controleer of "sensor" en "temperature" bestaan voordat je ze gebruikt
             if (data.sensor && "temperature" in data.sensor) {
                 document.getElementById("sensorData").innerText = 
                     "Temperatuur: " + data.sensor.temperature + "°C";
             } else {
                 console.warn("Geen sensordata in bericht:", data);
             }
-    
+
         } catch (error) {
             console.error("Fout bij het verwerken van de ontvangen data:", error);
         }
