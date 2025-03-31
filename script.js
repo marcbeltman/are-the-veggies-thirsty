@@ -35,24 +35,30 @@ function connectWebSocket() {
     
             console.log("Ontvangen data:", data);
     
-            // Controleer of "sensor" en "temperature" bestaan voordat je ze gebruikt
+            // Controleer of "sensor" en "time" bestaan voordat je ze gebruikt
             if (data.sensor && "time" in data.sensor) {
                 document.getElementById("time").innerText = 
-                    "Tijd: " + data.sensor.time;
+                    "Time: " + data.sensor.time;
             } else {
                 console.warn("Geen tijdsaanduiding in bericht:", data);
             }
 
-
-
-
             // Controleer of "sensor" en "temperature" bestaan voordat je ze gebruikt
             if (data.sensor && "temperature" in data.sensor) {
                 document.getElementById("sensorData").innerText = 
-                    "Temperatuur: " + data.sensor.temperature + "°C";
+                    "Temperature: " + data.sensor.temperature + "°C";
             } else {
                 console.warn("Geen sensordata in bericht:", data);
             }
+
+           // Controleer of "sensor" en "soil_moisture" bestaan voordat je ze gebruikt
+            if (data.sensor && "soil_moisture" in data.sensor) {
+                document.getElementById("soil-moisture").innerText = 
+                    "Soil moisture: " + data.sensor.soil_moisture;
+            } else {
+                console.warn("Geen soil_moisture in bericht:", data);
+            }
+
 
         } catch (error) {
             console.error("Fout bij het verwerken van de ontvangen data:", error);
