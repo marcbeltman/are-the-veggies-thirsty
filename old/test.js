@@ -1,5 +1,3 @@
-console.log("Script geladen!");
-
 // WebSocket verbinding met Node-RED server
 let socket;
 let pingInterval;
@@ -39,7 +37,6 @@ function connectWebSocket() {
             // Controleer of "sensor" en "time" bestaan voordat je ze gebruikt
             if (data.sensor && "time" in data.sensor) {
                 let readableTime = new Date(data.sensor.time).toLocaleString("nl-NL");
-                console.log("Laatste meting ontvangen:", readableTime);
                 document.getElementById("time").innerText = "Time last measurment: " + readableTime;
             } else {
                 console.warn("Geen tijdsaanduiding in bericht:", data);
@@ -80,39 +77,69 @@ function connectWebSocket() {
 // Verbind met de WebSocket server
 connectWebSocket();
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// PROGRESS CIRCLE
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-
-
-
-
-
-
-function showImageBasedOnValue(value) {
-    const imageContainer = document.getElementById('image-container');
-    imageContainer.innerHTML = ''; // Clear previous image
-
-    let imagePath = '';
-
-    if (value >= 80) {
-        imagePath = 'images/01-veggies-excited-very-wet.png';
-    } else if (value >= 60) {
-        imagePath = 'images/02-veggies-happy-wet.png';
-    } else if (value >= 40) {
-        imagePath = 'images/03-veggies-neutral-normal.png';
-    } else if (value >= 20) {
-        imagePath = 'images/04-veggies-thirsty-dry.png';
-    } else {
-        imagePath = 'images/05-veggies-dieing-very-dry.png';
-    }
-
-    const img = document.createElement('img');
-    img.src = imagePath;
-    img.alt = 'Soil moisture level';
-    imageContainer.appendChild(img);
+function setProgress(percent) {
+    const circle = document.querySelector('.circle-progress');
+    const percentageText = document.querySelector('.percentage');
+    
+    const radius = circle.getAttribute('r');
+    const circumference = 2 * Math.PI * radius;
+    
+    circle.style.strokeDasharray = `${circumference} ${circumference}`;
+    const offset = circumference - (percent / 100) * circumference;
+    circle.style.strokeDashoffset = offset;
+    
+    percentageText.textContent = `${Math.round(percent)}%`;
 }
 
+function updateProgress() {
+    if (!lastMeasurementTime) {
+        setProgress(0); // Geen meting beschikbaar
+        return;
+    }
+
+    const currentTime = Date.now();
+    const elapsedSinceLast = currentTime - lastMeasurementTime;
+    const timeUntilNext = MEASUREMENT_INTERVAL - (elapsedSinceLast % MEASUREMENT_INTERVAL);
+    const progress = (elapsedSinceLast % MEASUREMENT_INTERVAL) / MEASUREMENT_INTERVAL * 100;
+
+    setProgress(progress);
+
+    // Blijf updaten
+    requestAnimationFrame(updateProgress);
+}
+
+
+
+function updateProgressFromFirstMeasurement() {
+    if (!lastMeasurementTime) return;
+
+    const currentTime = Date.now();
+    const elapsedSinceFirst = currentTime - lastMeasurementTime;
+    const progress = (elapsedSinceFirst / MEASUREMENT_INTERVAL) * 100;
+
+    setProgress(progress); // Update de progress bar
+
+    // Blijf progress bijwerken totdat de volgende meting komt
+    requestAnimationFrame(updateProgressFromFirstMeasurement);
+}
+
+
+
+
+
+
+
+
+// Start bij het laden van de pagina
+window.onload = () => {
+
+    
+    // Start progress update
+    updateProgress();
+};
