@@ -52,7 +52,7 @@ img {
 /* Header Styles */
 .header {
     background-color: #ffffff;
-    color: white;
+    color: black; /* Zorg ervoor dat de tekstkleur zwart is */
     text-align: center;
     padding: 0.25rem; /* Nog kleinere verticale padding */
     width: 100vw; /* Gebruik de volledige breedte van het viewport */
