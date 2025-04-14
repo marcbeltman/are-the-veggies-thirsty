@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>ARE THE VEGGIES THIRSTY?</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>ARE THE VEGGIES THIRSTY?</h1>
+    <h1>Live Sensor Data</h1>
+    <p id="time">Datum en tijd</p>
+    <p id="sensorData">Wachten op data...</p>
+    <p id="soil-moisture">Wachten op data...</p>
+
+    <h3>Indication next measurement:</h3>
+
+    <div class="progress-circle">
+        <svg width="100" height="100">
+            <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
+            <circle class="circle-progress" cx="50" cy="50" r="45"></circle>
+        </svg>
+        <div class="percentage">0%</div>
+    </div>
+
+
+    <script src="script.js"></script>
+</body>
+
+
+</html>

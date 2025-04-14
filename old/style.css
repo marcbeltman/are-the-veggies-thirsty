@@ -1,0 +1,41 @@
+
+
+body {
+    margin: 0; /* Verwijdert standaard marges */
+    height: 50vh; /* Volledige hoogte van het scherm */
+    display: flex; /* Flexbox voor centreren */
+    flex-direction: column; /* Stapelt items verticaal */
+    justify-content: center; /* Centreert de groep verticaal */
+    align-items: center; /* Centreert elk item horizontaal */
+    gap: 5px; /* Ruimte tussen de elementen */
+}
+
+.progress-circle {
+    position: relative;
+    width: 100px;
+    height: 100px;
+}
+
+.circle-bg {
+    fill: none;
+    stroke: #eee;
+    stroke-width: 10;
+}
+
+.circle-progress {
+    fill: none;
+    stroke: #2196F3;
+    stroke-width: 10;
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    transition: stroke-dashoffset 0.1s linear;
+}
+
+.percentage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+}

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .progress-circle {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+
+        .circle-bg {
+            fill: none;
+            stroke: #eee;
+            stroke-width: 10;
+        }
+
+        .circle-progress {
+            fill: none;
+            stroke: #2196F3;
+            stroke-width: 10;
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+            transition: stroke-dashoffset 0.1s linear;
+        }
+
+        .percentage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-circle">
+        <svg width="100" height="100">
+            <circle class="circle-bg" cx="50" cy="50" r="45"></circle>
+            <circle class="circle-progress" cx="50" cy="50" r="45"></circle>
+        </svg>
+        <div class="percentage">0%</div>
+    </div>
+
+    <script>
+        function setProgress(percent) {
+            const circle = document.querySelector('.circle-progress');
+            const percentageText = document.querySelector('.percentage');
+            
+            const radius = circle.getAttribute('r');
+            const circumference = 2 * Math.PI * radius;
+            
+            circle.style.strokeDasharray = `${circumference} ${circumference}`;
+            const offset = circumference - (percent / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+            
+            percentageText.textContent = `${Math.round(percent)}%`;
+        }
+
+        // Stel het interval van metingen in (in milliseconden)
+        const MEASUREMENT_INTERVAL = 60 * 1000; // 60 seconden
+        let lastMeasurementTime = null;
+
+        // Simuleer een WebSocket (vervang dit door je echte WebSocket)
+        function setupWebSocket() {
+            const ws = new WebSocket('wss://jouw-websocket-url'); // Vervang met echte URL
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                // Verwacht een timestamp in de data, bijv. { timestamp: "2025-03-31T12:00:00Z" }
+                lastMeasurementTime = new Date(data.timestamp).getTime();
+                updateProgress(); // Update direct bij nieuwe meting
+            };
+
+            ws.onopen = () => {
+                console.log('WebSocket verbonden');
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket fout:', error);
+            };
+        }
+
+        function updateProgress() {
+            if (!lastMeasurementTime) {
+                setProgress(0); // Geen meting beschikbaar
+                return;
+            }
+
+            const currentTime = Date.now();
+            const elapsedSinceLast = currentTime - lastMeasurementTime;
+            const timeUntilNext = MEASUREMENT_INTERVAL - (elapsedSinceLast % MEASUREMENT_INTERVAL);
+            const progress = (elapsedSinceLast % MEASUREMENT_INTERVAL) / MEASUREMENT_INTERVAL * 100;
+
+            setProgress(progress);
+
+            // Blijf updaten
+            requestAnimationFrame(updateProgress);
+        }
+
+        // Start bij het laden van de pagina
+        window.onload = () => {
+            // Simuleer een laatste meting (vervang dit door echte data)
+            lastMeasurementTime = Date.now() - (20 * 1000); // Bijv. 20 seconden geleden
+            
+            // Start WebSocket
+           // setupWebSocket();
+            
+            // Start progress update
+            updateProgress();
+        };
+    </script>
+</body>
+</html>
