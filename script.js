@@ -34,6 +34,14 @@ function connectWebSocket() {
                 return; // Stop hier, geen verdere verwerking nodig
             }
     
+            if (data.type === "node-red: message recieved") {
+                console.log("node-red: bericht irrigatie start ontvangen");
+                return; // Stop hier, geen verdere verwerking nodig
+            }
+
+
+
+
             console.log("Ontvangen data:", data);
     
             // Controleer of "sensor" en "time" bestaan voordat je ze gebruikt
@@ -116,3 +124,17 @@ function showImageBasedOnValue(value) {
     imageContainer.appendChild(img);
 }
 
+
+function startIrrigation() {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        const message = {
+            type: "irrigation_command",
+            action: "start",
+            timestamp: new Date().toISOString()
+        };
+        socket.send(JSON.stringify(message));
+        console.log("Irrigatiecommando verzonden:", message);
+    } else {
+        console.warn("WebSocket is niet open. Kan geen bericht verzenden.");
+    }
+}

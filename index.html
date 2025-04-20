@@ -41,6 +41,10 @@
         .card{
             all: unset; /* Verwijder alle standaard opmaak van de class card-image */
         }
+
+        .btn {
+            font-family: 'Toon-City', sans-serif; /* Pas het Toon-City font toe op de knop */
+        }
     </style>
 </head>
 <body>
@@ -71,7 +75,11 @@
         <!-- Row 2 -->
         <div class="row">
             <div class="col s12 m6">
-                <div class="card-panel teal lighten-4">Column 3</div>
+                <div class="card-panel teal lighten-4">Column 3
+                    <div style="text-align: center;">
+                        <button class="btn waves-effect waves-light black-text white" style="font-family: 'Toon-City', sans-serif;" onclick="startIrrigation()">Start irrigatie</button>
+                    </div>
+                </div>
             </div>
             <div class="col s12 m6">
                 <div class="card-panel teal lighten-4">Column 4</div>
