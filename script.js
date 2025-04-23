@@ -1,9 +1,17 @@
 console.log("Script geladen!");
 
+
+
+
 // WebSocket verbinding met Node-RED server
 let socket;
 let pingInterval;
+
+//ESP DataHub heartbeat
+let heartbeatTimeout;
+
 const serverUrl = "wss://node-red.xyz/ws/sensorData";
+
 
 
 function connectWebSocket() {
@@ -39,7 +47,12 @@ function connectWebSocket() {
                 return; // Stop hier, geen verdere verwerking nodig
             }
 
-
+            if (data.status) {
+                console.log("ESP DataHub online");
+                document.getElementById("esp-datahub").innerText = "ESP-DataHub Online..."
+                resetHeartbeatTimeout(); // <-- voeg dit toe
+                return; // Stop hier, geen verdere verwerking nodig
+            }
 
 
             console.log("Ontvangen data:", data);
@@ -90,8 +103,14 @@ connectWebSocket();
 
 
 
-
-
+// functie om de ESP DataHub heartbeat te resetten
+function resetHeartbeatTimeout() {
+    clearTimeout(heartbeatTimeout);
+    heartbeatTimeout = setTimeout(() => {
+      console.error("Geen bevestiging van ESP-DataHub heartbeat binnen 70 seconden.");
+      document.getElementById("esp-datahub").innerText = "ESP-DataHub Offline..."
+    }, 70000);
+  }
 
 
 
