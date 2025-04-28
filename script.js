@@ -67,7 +67,7 @@ function connectWebSocket() {
         
                 console.log("Device:", device);
                 console.log("Timestamp:", timestamp);
-                console.log("Soil Moisture:", soilMoisture);
+                console.log("Soil Moisture:", soilMoisture, "Datatype:", typeof soilMoisture); // Zorg ervoor dat de tekst duidelijker is
                 console.log("Soil Temperature:", temperature);
                 console.log("Battery Status:", batteryStatus);
                 console.log("Battery Voltage:", batteryVoltage);
@@ -76,12 +76,12 @@ function connectWebSocket() {
                     "Soil moisture: " + soilMoisture + "%";
                 document.getElementById("soil-temperature").innerText =
                     "Soil temperature: " + temperature + "°C";
-                // document.getElementById("battery-status").innerText =       
-                //     "Battery status: " + batteryStatus;
-                // document.getElementById("battery-voltage").innerText =                  
-                //     "Battery voltage: " + batteryVoltage + "V";
-                // document.getElementById("device").innerText =
-                //     "Device: " + device;        
+                document.getElementById("battery-status").innerText =       
+                    "Battery status: " + batteryStatus;
+                document.getElementById("battery-voltage").innerText =                  
+                    "Battery voltage: " + batteryVoltage + "V";
+                document.getElementById("soil-node").innerText =
+                    "Device: " + device;        
                 document.getElementById("time").innerText =
                     "Time last measurement: " + timestamp
 
@@ -131,14 +131,19 @@ function showImageBasedOnValue(value) {
     let imagePath = '';
 
     if (value >= 80) {
+        document.getElementById("answer").innerText = "No we are excited!"  
         imagePath = 'images/01-veggies-excited-very-wet.png';
     } else if (value >= 60) {
+        document.getElementById("answer").innerText = "No we are happy!"  
         imagePath = 'images/02-veggies-happy-wet.png';
     } else if (value >= 40) {
+        document.getElementById("answer").innerText = "No we are oke!" 
         imagePath = 'images/03-veggies-neutral-normal.png';
     } else if (value >= 20) {
+        document.getElementById("answer").innerText = "Yes we are thirsty!" 
         imagePath = 'images/04-veggies-thirsty-dry.png';
     } else {
+        document.getElementById("answer").innerText = "Man, we are dying!" 
         imagePath = 'images/05-veggies-dieing-very-dry.png';
     }
 

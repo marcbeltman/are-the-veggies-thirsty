@@ -46,12 +46,32 @@
         .btn {
             font-family: 'Toon-City', sans-serif; /* Pas het Toon-City font toe op de knop */
         }
+
+        .chip.green {
+      background-color: #4CAF50; /* Groene kleur voor 'Optimal' */
+      color: white;
+    }
+    .chip.orange {
+      background-color: #FB8C00; /* Oranje kleur voor 'Still good' */
+      color: white;
+    }
+    .chip.yellow {
+      background-color: #FDD835; /* Geel voor 'Thirst phase' */
+      color: black;
+    }
+    .chip.red {
+      background-color: #E53935; /* Rood voor 'Risk of dehydration' */
+      color: white;
+    }
+
+
     </style>
 </head>
 <body>
     <!-- Header Section -->
     <header class="section  black-text center">
         <h1>ARE THE VEGGIES THIRSTY?</h1>
+        </div>
     </header>
 
     <!-- Main Content Section -->
@@ -60,15 +80,17 @@
         <div class="row">
             <div class="col s12 m6">
                 <h4 class="header">Live Sensor Data</h4>
+                <p id="soil-node">device</p>
                 <p id="time">Wachten op data...</p>
                 <p id="soil-moisture">Wachten op data...</p>
                 <p id="soil-temperature">Wachten op data...</p>
-  
             </div>
             <div class="col s12 m6">
-                <div class="card">
-                    <div class="card-image" id="image-container">
-                        <!-- <img src="images/01-veggies-excited-very-wet.png" alt="Afbeelding"> -->
+                <div class="card" style="position: relative;">
+                    
+                    <h3 class="black-text"  id="answer" style="transform: rotate(-10deg); position: absolute; top: -40px; left: 0; z-index: 10; font-style: italic;">Yes we are!</h3>
+                    <div class="card-image" id="image-container" style="position: relative; z-index: 1;">
+                        <!-- Dynamically placed image -->
                     </div>
                 </div>
             </div>
@@ -77,15 +99,54 @@
         <!-- Row 2 -->
         <div class="row">
             <div class="col s12 m6">
-                <div class="card-panel teal lighten-4">Column 3
+                <div class="card-panel ">
+                    <h5>Device settings:</h5>
                     <div style="text-align: center;">
-                        <button class="btn waves-effect waves-light black-text white" style="font-family: 'Toon-City', sans-serif;" onclick="startIrrigation()">Start irrigatie</button>
+                       
+                        <p id="battery-voltage">battery-voltage</p>
+                        <p id="battery-status">battery-status</p>
+                        <!-- <button class="btn waves-effect waves-light black-text white" style="font-family: 'Toon-City', sans-serif;" onclick="startIrrigation()">Start irrigatie</button> -->
                         <p id="esp-datahub">ESP-DataHub Offline...</p>
                     </div>
                 </div>
             </div>
             <div class="col s12 m6">
-                <div class="card-panel teal lighten-4">Column 4</div>
+                <div class="card-panel ">
+                    <h5>Soil Moisture Levels for Compost</h5>
+                    <table class="striped centered responsive-table">
+                        <thead>
+                          <tr>
+                            <th>Soil Moisture (%)</th>
+                            <th>Status for veggies</th>
+                            <th>Explanation</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>60–75%</td>
+                            <td><div class="chip green">✅ Optimal</div></td>
+                            <td>Compost is moist but not wet – ideal for tuber formation.</td>
+                          </tr>
+                          <tr>
+                            <td>50–60%</td>
+                            <td><div class="chip orange">⚠️ Still good</div></td>
+                            <td>Still sufficient moisture present, but can quickly drop in warm weather.</td>
+                          </tr>
+                          <tr>
+                            <td>35–50%</td>
+                            <td><div class="chip yellow">😟 Thirst phase</div></td>
+                            <td>Plant experiences stress; leaves may droop or discolor.</td>
+                          </tr>
+                          <tr>
+                            <td>&lt; 35%</td>
+                            <td><div class="chip red">🔥 Risk of dehydration</div></td>
+                            <td>Too dry for potato growth – compost feels dusty.</td>
+                          </tr>
+                        </tbody>
+                      </table>
+
+                </div>
+                
             </div>
         </div>
     </main>
@@ -94,6 +155,7 @@
     <footer class="page-footer white">
         <div class="container">
             <p class="black-text center">Footer Content</p>
+            
         </div>
     </footer>
 
