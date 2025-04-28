@@ -12,7 +12,8 @@ let heartbeatTimeout;
 
 const serverUrl = "wss://node-red.xyz/ws/sensorData";
 
-
+// Globale variabele voor bodemvochtigheid
+let soilMoisture; 
 
 function connectWebSocket() {
     socket = new WebSocket(serverUrl);
@@ -54,33 +55,41 @@ function connectWebSocket() {
                 return; // Stop hier, geen verdere verwerking nodig
             }
 
+   
+            if (data.sensor_data) {
+                const device = data.sensor_data.device;
+                const timestamp = new Date(data.sensor_data.timestamp).toLocaleString("nl-NL"); 
+                // global variable for soil moisture
+                soilMoisture = data.sensor_data.soil.moisture;
+                const temperature = data.sensor_data.soil.temperature;
+                const batteryStatus = data.sensor_data.battery.status;
+                const batteryVoltage = data.sensor_data.battery.voltage;
+        
+                console.log("Device:", device);
+                console.log("Timestamp:", timestamp);
+                console.log("Soil Moisture:", soilMoisture);
+                console.log("Soil Temperature:", temperature);
+                console.log("Battery Status:", batteryStatus);
+                console.log("Battery Voltage:", batteryVoltage);
 
-            console.log("Ontvangen data:", data);
-    
-            // Controleer of "sensor" en "time" bestaan voordat je ze gebruikt
-            if (data.sensor && "time" in data.sensor) {
-                let readableTime = new Date(data.sensor.time).toLocaleString("nl-NL");
-                console.log("Laatste meting ontvangen:", readableTime);
-                document.getElementById("time").innerText = "Time last measurment: " + readableTime;
-            } else {
-                console.warn("Geen tijdsaanduiding in bericht:", data);
-            }
-
-            // Controleer of "sensor" en "temperature" bestaan voordat je ze gebruikt
-            if (data.sensor && "temperature" in data.sensor) {
-                document.getElementById("sensorData").innerText = 
-                    "Temperature: " + data.sensor.temperature + "°C";
-            } else {
-                console.warn("Geen sensordata in bericht:", data);
-            }
-
-           // Controleer of "sensor" en "soil_moisture" bestaan voordat je ze gebruikt
-            if (data.sensor && "soil_moisture" in data.sensor) {
                 document.getElementById("soil-moisture").innerText = 
-                    "Soil moisture: " + data.sensor.soil_moisture;
+                    "Soil moisture: " + soilMoisture + "%";
+                document.getElementById("soil-temperature").innerText =
+                    "Soil temperature: " + temperature + "°C";
+                // document.getElementById("battery-status").innerText =       
+                //     "Battery status: " + batteryStatus;
+                // document.getElementById("battery-voltage").innerText =                  
+                //     "Battery voltage: " + batteryVoltage + "V";
+                // document.getElementById("device").innerText =
+                //     "Device: " + device;        
+                document.getElementById("time").innerText =
+                    "Time last measurement: " + timestamp
+
             } else {
-                console.warn("Geen soil_moisture in bericht:", data);
+                console.log("Onbekend berichtformaat, geen sensor_data aanwezig.");
             }
+
+            showImageBasedOnValue(soilMoisture) // Toon de afbeelding op basis van de bodemvochtigheid
 
         } catch (error) {
             console.error("Fout bij het verwerken van de ontvangen data:", error);
@@ -103,6 +112,7 @@ connectWebSocket();
 
 
 
+
 // functie om de ESP DataHub heartbeat te resetten
 function resetHeartbeatTimeout() {
     clearTimeout(heartbeatTimeout);
@@ -111,11 +121,6 @@ function resetHeartbeatTimeout() {
       document.getElementById("esp-datahub").innerText = "ESP-DataHub Offline..."
     }, 70000);
   }
-
-
-
-
-
 
 
 
