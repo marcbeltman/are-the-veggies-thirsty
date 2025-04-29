@@ -55,7 +55,8 @@ function connectWebSocket() {
                 return; // Stop hier, geen verdere verwerking nodig
             }
 
-   
+            console.log("Ontvangen data:", data); // Log de ontvangen data
+
             if (data.sensor_data) {
                 const device = data.sensor_data.device;
                 const timestamp = new Date(data.sensor_data.timestamp).toLocaleString("nl-NL"); 
@@ -64,6 +65,7 @@ function connectWebSocket() {
                 const temperature = data.sensor_data.soil.temperature;
                 const batteryStatus = data.sensor_data.battery.status;
                 const batteryVoltage = data.sensor_data.battery.voltage;
+                const interval = data.sensor_data.deepsleep / 60; // Dit is de tijdsinterval tussen metingen
         
                 console.log("Device:", device);
                 console.log("Timestamp:", timestamp);
@@ -71,6 +73,7 @@ function connectWebSocket() {
                 console.log("Soil Temperature:", temperature);
                 console.log("Battery Status:", batteryStatus);
                 console.log("Battery Voltage:", batteryVoltage);
+                console.log("Interval:", interval, "min");
 
                 document.getElementById("soil-moisture").innerText = 
                     "Soil moisture: " + soilMoisture + "%";
