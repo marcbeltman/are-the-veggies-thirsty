@@ -131,16 +131,16 @@ function showImageBasedOnValue(value) {
     let imagePath = '';
 
     if (value >= 80) {
-        document.getElementById("answer").innerText = "No we are excited!"  
+        document.getElementById("answer").innerText = "No, we are excited!"  
         imagePath = 'images/01-veggies-excited-very-wet.png';
     } else if (value >= 60) {
-        document.getElementById("answer").innerText = "No we are happy!"  
+        document.getElementById("answer").innerText = "No, we are happy!"  
         imagePath = 'images/02-veggies-happy-wet.png';
     } else if (value >= 40) {
-        document.getElementById("answer").innerText = "No we are oke!" 
+        document.getElementById("answer").innerText = "No, we are oke!" 
         imagePath = 'images/03-veggies-neutral-normal.png';
     } else if (value >= 20) {
-        document.getElementById("answer").innerText = "Yes we are thirsty!" 
+        document.getElementById("answer").innerText = "Yes, we are thirsty!" 
         imagePath = 'images/04-veggies-thirsty-dry.png';
     } else {
         document.getElementById("answer").innerText = "Man, we are dying!" 
