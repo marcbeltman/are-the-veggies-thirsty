@@ -64,6 +64,32 @@
       color: white;
     }
 
+    /* SPINNER PROGRESSBAR*/
+
+    .spinner-container {
+          width: 150px;
+          height: 150px;
+          position: relative;
+        }
+    
+        .progress-ring {
+          transform: rotate(-90deg); /* zodat het bovenaan begint */
+        }
+    
+        .progress-ring circle {
+          fill: transparent;
+          stroke-width: 10;
+          stroke-linecap: round;
+        }
+    
+        .progress-ring-bg {
+          stroke: #e0e0e0;
+        }
+    
+        .progress-ring-circle {
+          stroke: #1f871b;
+          transition: stroke-dashoffset 0.3s linear;
+        }
 
     </style>
 </head>
@@ -90,6 +116,17 @@
                 <p id="time" class="center">Wachten op data...</p>
                 <p id="soil-moisture" class="center">Wachten op data...</p>
                 <p id="soil-temperature" class="center">Wachten op data...</p>
+
+                <p id="soil-temperature" class="center">Expected next measurement:</p>
+                <div class="offline-message" style="display: none;">
+                  <p class="center red-text"><i>Soil-moisture sensor: offline...</i></p>
+                </div>
+                <div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                  <svg class="progress-ring" width="100" height="100">
+                    <circle class="progress-ring-bg" cx="50" cy="50" r="43.33" />
+                    <circle class="progress-ring-circle" cx="50" cy="50" r="43.33" />
+                  </svg>
+                </div>
           
             </div>
         </div>

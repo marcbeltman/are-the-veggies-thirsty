@@ -6,14 +6,20 @@ console.log("Script geladen!");
 // WebSocket verbinding met Node-RED server
 let socket;
 let pingInterval;
+let intervalId = null; // Houdt bij of er al een interval loopt
 
 //ESP DataHub heartbeat
 let heartbeatTimeout;
 
 const serverUrl = "wss://node-red.xyz/ws/sensorData";
 
-// Globale variabele voor bodemvochtigheid
+// Globale variabele voor bodemvochtigheid uit de message 
 let soilMoisture; 
+// Globale variabele voor de timestamp uit de message
+let timestamp;
+// Globale variabele voor tijdsinterval in seconden (deepsleep) uit de message
+let interval;
+
 
 function connectWebSocket() {
     socket = new WebSocket(serverUrl);
@@ -58,14 +64,18 @@ function connectWebSocket() {
             console.log("Ontvangen data:", data); // Log de ontvangen data
 
             if (data.sensor_data) {
+
+               
+
                 const device = data.sensor_data.device;
-                const timestamp = new Date(data.sensor_data.timestamp).toLocaleString("nl-NL"); 
+                const readableTimestamp = new Date(data.sensor_data.timestamp).toLocaleString("nl-NL"); 
+                timestamp = data.sensor_data.timestamp
                 // global variable for soil moisture
                 soilMoisture = data.sensor_data.soil.moisture;
                 const temperature = data.sensor_data.soil.temperature;
                 const batteryStatus = data.sensor_data.battery.status;
                 const batteryVoltage = data.sensor_data.battery.voltage;
-                const interval = data.sensor_data.deepsleep / 60; // Dit is de tijdsinterval tussen metingen
+                interval = data.sensor_data.deepsleep; // Dit is de tijdsinterval tussen metingen
         
                 console.log("Device:", device);
                 console.log("Timestamp:", timestamp);
@@ -73,7 +83,7 @@ function connectWebSocket() {
                 console.log("Soil Temperature:", temperature);
                 console.log("Battery Status:", batteryStatus);
                 console.log("Battery Voltage:", batteryVoltage);
-                console.log("Interval:", interval, "min");
+                console.log("Interval:", interval, "seconds");
 
                 document.getElementById("soil-moisture").innerText = 
                     "Soil moisture: " + soilMoisture + "%";
@@ -86,13 +96,16 @@ function connectWebSocket() {
                 document.getElementById("soil-node").innerText =
                     "Device: " + device;        
                 document.getElementById("time").innerText =
-                    "Time last measurement: " + timestamp
+                    "Time last measurement: " + readableTimestamp
 
             } else {
                 console.log("Onbekend berichtformaat, geen sensor_data aanwezig.");
             }
 
             showImageBasedOnValue(soilMoisture) // Toon de afbeelding op basis van de bodemvochtigheid
+
+            // Roep de voortgangsbalkfunctie aan bij elk bericht
+            startProgressRing(interval);
 
         } catch (error) {
             console.error("Fout bij het verwerken van de ontvangen data:", error);
@@ -174,4 +187,107 @@ function startIrrigation() {
     } else {
         console.warn("WebSocket is niet open. Kan geen bericht verzenden.");
     }
+}
+
+
+
+
+function startProgressRing(interval) {
+    let elapsedTime = compareTimestamp(timestamp);
+
+    const progressRing = document.querySelector('.progress-ring');
+    const offlineMessage = document.querySelector('.offline-message');
+
+    if (!progressRing) {
+        console.error("Kan het progress ring element niet vinden!");
+        return;
+    }
+
+    if (!offlineMessage) {
+        console.error("Kan het offline bericht element niet vinden!");
+        return;
+    }
+
+    // Controleer of elapsedTime groter is dan interval
+    if (elapsedTime > interval) {
+        console.log("Verstreken tijd is groter dan interval, toon offline bericht");
+        progressRing.style.display = 'none';
+        offlineMessage.style.display = 'block';
+        return;
+    }
+
+    // Toon voortgangsbalk en verberg offline bericht
+    progressRing.style.display = 'block';
+    offlineMessage.style.display = 'none';
+
+    const circle = document.querySelector('.progress-ring-circle');
+    if (!circle) {
+        console.error("Kan het cirkelelement niet vinden!");
+        return;
+    }
+
+    const radius = circle.r.baseVal.value;
+    const circumference = 2 * Math.PI * radius;
+
+    circle.style.strokeDasharray = `${circumference}`;
+    circle.style.strokeDashoffset = `${circumference}`;
+
+    const startTime = Date.now();
+
+    // Stop vorige interval als die nog loopt
+    if (intervalId !== null) {
+        clearInterval(intervalId);
+    }
+
+    function updateProgress() {
+        const now = Date.now();
+        const elapsedSeconds = (now - startTime) / 1000;
+        // Voeg elapsedTime toe aan elapsedSeconds voor de voortgangsberekening
+        const totalElapsed = elapsedSeconds + elapsedTime;
+        const progress = Math.min(totalElapsed / interval, 1);
+        const offset = circumference * (1 - progress);
+        circle.style.strokeDashoffset = offset;
+
+        console.log(`Elapsed: ${totalElapsed.toFixed(2)}s, Progress: ${(progress * 100).toFixed(1)}%`);
+
+        if (progress >= 1) {
+            clearInterval(intervalId);
+            intervalId = null;
+        }
+    }
+
+    intervalId = setInterval(updateProgress, 1000);
+}
+
+
+// HelperFunctie voor functie startProgressRing() om de tijdstempel te vergelijken met de huidige tijd
+  function compareTimestamp(timestamp) {
+    const currentTime = new Date();
+    console.log("current time: ", currentTime);
+    let givenTime;
+
+    if (typeof timestamp === 'string') {
+        givenTime = new Date(timestamp);
+        console.log("given time: ", givenTime);
+        if (isNaN(givenTime)) {
+            throw new Error('Invalid date string');
+        }
+    } else if (typeof timestamp === 'number') {
+        givenTime = new Date(timestamp);
+    } else if (timestamp instanceof Date) {
+        givenTime = timestamp;
+    } else {
+        throw new Error('Timestamp must be a Unix timestamp, Date object, or valid date string');
+    }
+
+    // rond het verschil af in hele seconden
+    const differenceSeconds = Math.round((currentTime - givenTime) / 1000);
+
+    
+    console.log("difference time message and realtime: ", differenceSeconds);
+    // if (differenceSeconds > interval) {
+    //     isLessThanInterval = true;
+    // }
+
+    return differenceSeconds
 }
