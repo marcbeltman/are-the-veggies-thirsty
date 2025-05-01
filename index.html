@@ -112,12 +112,11 @@
             </div>
             <div class="col s12 m6">
                 <h4 class="header center">Live Sensor Data</h4>
-                <p id="soil-node" class="center">device</p>
-                <p id="time" class="center">Wachten op data...</p>
                 <p id="soil-moisture" class="center">Wachten op data...</p>
                 <p id="soil-temperature" class="center">Wachten op data...</p>
-
-                <p id="soil-temperature" class="center">Expected next measurement:</p>
+                <p  class="center">Time last measurement:</p>
+                <p id="time" class="center">Wachten op data...</p>
+                <p  class="center">Expected next measurement:</p>
                 <div class="offline-message" style="display: none;">
                   <p class="center red-text"><i>Soil-moisture sensor: offline...</i></p>
                 </div>
@@ -127,7 +126,6 @@
                     <circle class="progress-ring-circle" cx="50" cy="50" r="43.33" />
                   </svg>
                 </div>
-          
             </div>
         </div>
 
@@ -174,9 +172,10 @@
            
                     <div style="text-align: center;">
                         <h6>Device settings:</h6>
-                        <p id="message-interval" class="center">Message interval: 60 min</p>
+                        <p id="soil-node" class="center">device</p>
                         <p id="battery-voltage">battery-voltage</p>
                         <p id="battery-status">battery-status</p>
+                        <p id="readable-interval" class="center"></p>
                         <p id="esp-datahub">ESP-DataHub Offline...</p>
                         <button class="btn waves-effect waves-light black-text white" style="font-family: 'Toon-City', sans-serif;" onclick="startIrrigation()">Start irrigatie</button> 
                     </div>

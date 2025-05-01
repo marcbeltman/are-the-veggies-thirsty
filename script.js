@@ -75,7 +75,8 @@ function connectWebSocket() {
                 const temperature = data.sensor_data.soil.temperature;
                 const batteryStatus = data.sensor_data.battery.status;
                 const batteryVoltage = data.sensor_data.battery.voltage;
-                interval = data.sensor_data.deepsleep; // Dit is de tijdsinterval tussen metingen
+                const readableInterval = Math.round(data.sensor_data.deepsleep / 60); // Dit is de tijdsinterval tussen metingen in min
+                interval = data.sensor_data.deepsleep; // Dit is de tijdsinterval tussen metingen in seconden
         
                 console.log("Device:", device);
                 console.log("Timestamp:", timestamp);
@@ -83,7 +84,8 @@ function connectWebSocket() {
                 console.log("Soil Temperature:", temperature);
                 console.log("Battery Status:", batteryStatus);
                 console.log("Battery Voltage:", batteryVoltage);
-                console.log("Interval:", interval, "seconds");
+                console.log("Interval:", interval, "seconds"); // Dit is de tijdsinterval tussen metingen in sec
+                console.log("Interval in minutes:", readableInterval, "minutes"); // Dit is de tijdsinterval tussen metingen in min
 
                 document.getElementById("soil-moisture").innerText = 
                     "Soil moisture: " + soilMoisture + "%";
@@ -95,8 +97,9 @@ function connectWebSocket() {
                     "Battery voltage: " + batteryVoltage + "V";
                 document.getElementById("soil-node").innerText =
                     "Device: " + device;        
-                document.getElementById("time").innerText =
-                    "Time last measurement: " + readableTimestamp
+                document.getElementById("time").innerText = readableTimestamp
+                document.getElementById("readable-interval").innerText = "Message interval: " + readableInterval + " min"; // Dit is de tijdsinterval tussen metingen in min
+
 
             } else {
                 console.log("Onbekend berichtformaat, geen sensor_data aanwezig.");
@@ -285,9 +288,5 @@ function startProgressRing(interval) {
 
     
     console.log("difference time message and realtime: ", differenceSeconds);
-    // if (differenceSeconds > interval) {
-    //     isLessThanInterval = true;
-    // }
-
     return differenceSeconds
 }
