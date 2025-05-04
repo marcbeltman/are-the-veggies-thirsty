@@ -76,7 +76,7 @@ function connectWebSocket() {
                 const batteryStatus = data.sensor_data.battery.status;
                 const batteryVoltage = data.sensor_data.battery.voltage;
                 const readableInterval = Math.round(data.sensor_data.deepsleep / 60); // Dit is de tijdsinterval tussen metingen in min
-                interval = data.sensor_data.deepsleep; // Dit is de tijdsinterval tussen metingen in seconden
+                interval = data.sensor_data.deepsleep + 15; // Dit is de tijdsinterval tussen metingen in seconden 15 is de tijd die nodig is om de ESP te starten en verbinding te maken met het netwerk
         
                 console.log("Device:", device);
                 console.log("Timestamp:", timestamp);
