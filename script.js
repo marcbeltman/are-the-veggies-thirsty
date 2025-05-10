@@ -163,10 +163,14 @@ function showImageBasedOnValue(value) {
         document.getElementById("answer").innerText = "Yes, we are thirsty!" 
         document.getElementById("answer").style.textShadow = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 2px 0 #000, 2px 2px 0 #000";
         imagePath = 'images/04-veggies-thirsty-dry.png';
-    } else {
+    } else if (value >= 15) {
         document.getElementById("answer").innerText = "Man, we are dying!" 
         document.getElementById("answer").style.textShadow = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 2px 0 #000, 2px 2px 0 #000";
-        imagePath = 'images/05-veggies-dieing-very-dry.png';
+        imagePath = 'images/04-veggies-thirsty-dry.png';
+    } else {
+        document.getElementById("answer").innerText = "Invalid measurment" 
+        document.getElementById("answer").style.textShadow = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 2px 0 #000, 2px 2px 0 #000";
+        imagePath = 'images/white.png';
     }
 
     const img = document.createElement('img');
