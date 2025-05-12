@@ -147,26 +147,26 @@ function showImageBasedOnValue(value) {
 
     let imagePath = '';
 
-    if (value >= 80) {
-        document.getElementById("answer").innerText = "No, we are excited!" 
+    if (value >= 75) {
+        document.getElementById("answer").innerText = "No, to much water!" 
         document.getElementById("answer").style.textShadow = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 2px 0 #000, 2px 2px 0 #000"; 
-        imagePath = 'images/01-veggies-excited-very-wet.png';
+        imagePath = 'images/05-veggies-dieing-very-dry.png';
     } else if (value >= 60) {
         document.getElementById("answer").innerText = "No, we are happy!"  
         document.getElementById("answer").style.textShadow = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 2px 0 #000, 2px 2px 0 #000";
-        imagePath = 'images/02-veggies-happy-wet.png';
-    } else if (value >= 40) {
+        imagePath = 'images/01-veggies-excited-very-wet.png';
+    } else if (value >= 50) {
         document.getElementById("answer").innerText = "No, we are oke!" 
         document.getElementById("answer").style.textShadow = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 2px 0 #000, 2px 2px 0 #000";
-        imagePath = 'images/03-veggies-neutral-normal.png';
-    } else if (value >= 20) {
-        document.getElementById("answer").innerText = "Yes, we are thirsty!" 
+        imagePath = 'images/02-veggies-happy-wet.png';
+    } else if (value >= 35) {
+        document.getElementById("answer").innerText = " Man, we are thirsty!" 
         document.getElementById("answer").style.textShadow = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 2px 0 #000, 2px 2px 0 #000";
         imagePath = 'images/04-veggies-thirsty-dry.png';
-    } else if (value >= 15) {
+    } else if (value <= 35) {
         document.getElementById("answer").innerText = "Man, we are dying!" 
         document.getElementById("answer").style.textShadow = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 2px 0 #000, 2px 2px 0 #000";
-        imagePath = 'images/04-veggies-thirsty-dry.png';
+        imagePath = 'images/05-veggies-dieing-very-dry.png';
     } else {
         document.getElementById("answer").innerText = "Invalid measurment" 
         document.getElementById("answer").style.textShadow = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 2px 0 #000, 2px 2px 0 #000";
