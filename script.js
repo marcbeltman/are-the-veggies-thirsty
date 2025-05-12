@@ -151,15 +151,15 @@ function showImageBasedOnValue(value) {
         document.getElementById("answer").innerText = "No, to much water!" 
         document.getElementById("answer").style.textShadow = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 2px 0 #000, 2px 2px 0 #000"; 
         imagePath = 'images/05-veggies-dieing-very-dry.png';
-    } else if (value >= 60) {
+    } else if (value > 60 && value <= 75) {
         document.getElementById("answer").innerText = "No, we are happy!"  
         document.getElementById("answer").style.textShadow = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 2px 0 #000, 2px 2px 0 #000";
         imagePath = 'images/01-veggies-excited-very-wet.png';
-    } else if (value >= 50) {
+    } else if (value > 50 && value <= 60) {
         document.getElementById("answer").innerText = "No, we are oke!" 
         document.getElementById("answer").style.textShadow = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 2px 0 #000, 2px 2px 0 #000";
         imagePath = 'images/02-veggies-happy-wet.png';
-    } else if (value >= 35) {
+    } else if (value >= 35 && value <= 50) {
         document.getElementById("answer").innerText = " Man, we are thirsty!" 
         document.getElementById("answer").style.textShadow = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 2px 0 #000, 2px 2px 0 #000";
         imagePath = 'images/04-veggies-thirsty-dry.png';
