@@ -150,7 +150,7 @@ function showImageBasedOnValue(value) {
     if (value >= 75) {
         document.getElementById("answer").innerText = "No, to much water!" 
         document.getElementById("answer").style.textShadow = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 2px 0 #000, 2px 2px 0 #000"; 
-        imagePath = 'images/05-veggies-dieing-very-dry.png';
+        imagePath = 'images/06-veggies-drunk.png';
     } else if (value > 60 && value <= 75) {
         document.getElementById("answer").innerText = "No, we are happy!"  
         document.getElementById("answer").style.textShadow = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 2px 0 #000, 2px 2px 0 #000";
