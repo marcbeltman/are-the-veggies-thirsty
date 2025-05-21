@@ -70,25 +70,30 @@ function connectWebSocket() {
                 timestamp = data.sensor_data.timestamp
                 // global variable for soil moisture
                 soilMoisture = data.sensor_data.soil.moisture;
-                const temperature = data.sensor_data.soil.temperature;
+                const soilTemperature = data.sensor_data.soil.temperature;
                 const batteryStatus = data.sensor_data.battery.status;
                 const batteryVoltage = data.sensor_data.battery.voltage;
+                const temperature = data.sensor_data.temperature;
                 const readableInterval = Math.round(data.sensor_data.deepsleep / 60); // Dit is de tijdsinterval tussen metingen in min
                 interval = data.sensor_data.deepsleep + 15 ; // Dit is de tijdsinterval tussen metingen in seconden 15 is de tijd die nodig is om de ESP te starten en verbinding te maken met het netwerk
         
                 console.log("Device:", device);
                 console.log("Timestamp:", timestamp);
                 console.log("Soil Moisture:", soilMoisture, "Datatype:", typeof soilMoisture); // Zorg ervoor dat de tekst duidelijker is
-                console.log("Soil Temperature:", temperature);
+                console.log("Soil Temperature:", soilTemperature);
                 console.log("Battery Status:", batteryStatus);
                 console.log("Battery Voltage:", batteryVoltage);
                 console.log("Interval:", interval, "seconds"); // Dit is de tijdsinterval tussen metingen in sec
                 console.log("Interval in minutes:", readableInterval, "minutes"); // Dit is de tijdsinterval tussen metingen in min
 
+
+
                 document.getElementById("soil-moisture").innerText = 
                     "Soil moisture: " + soilMoisture + "%";
                 document.getElementById("soil-temperature").innerText =
-                    "Soil temperature: " + temperature + "°C";
+                    "Soil temperature: " + soilTemperature + "°C";
+                document.getElementById("temperature").innerText =
+                    "Outside temperature: " + temperature  + "°C";
                 document.getElementById("battery-status").innerText =       
                     "Battery status: " + batteryStatus;
                 document.getElementById("battery-voltage").innerText =                  
