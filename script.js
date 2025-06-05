@@ -81,6 +81,7 @@ function connectWebSocket() {
                 console.log("Timestamp:", timestamp);
                 console.log("Soil Moisture:", soilMoisture, "Datatype:", typeof soilMoisture); // Zorg ervoor dat de tekst duidelijker is
                 console.log("Soil Temperature:", soilTemperature);
+                console.log("Outside Temperature:", temperature);
                 console.log("Battery Status:", batteryStatus);
                 console.log("Battery Voltage:", batteryVoltage);
                 console.log("Interval:", interval, "seconds"); // Dit is de tijdsinterval tussen metingen in sec
