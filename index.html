@@ -184,8 +184,26 @@
                         <!-- <button class="btn waves-effect waves-light black-text white" style="font-family: 'Toon-City', sans-serif;" onclick="startIrrigation()">Start irrigatie</button>  -->
                     </div>
                 </div>
-                
             </div>
+            
+            <!-- TEST CAM IMAGE-->
+            <div class="col s12 m6">
+                <div class="card-panel ">
+                   <div style="text-align: center;">
+                        <h6>image:</h6>
+                        <p id="soil-node" class="center">GARDEN</p>
+                        <div class="center-align">
+                            <img id="myImageElement" class="materialboxed" alt="Nog geen afbeelding" style="max-width: 75%; height: auto; border: 2px solid black; display: block; margin-left: auto; margin-right: auto;">
+                        </div>
+                        <div id="imageCaption" class="center"></div>
+                        <div id="imageError" style="color: red;"></div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
         </div>
     </main>
 
@@ -200,5 +218,11 @@
     <!-- Materialize JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="script.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var elems = document.querySelectorAll('.materialboxed');
+        M.Materialbox.init(elems);
+      });
+    </script>
 </body>
 </html>
