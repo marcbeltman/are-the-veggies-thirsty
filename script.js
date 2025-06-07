@@ -33,7 +33,14 @@ function displayImage(arrayBuffer, contentType, filename) {
         imgElement.onload = () => {
             URL.revokeObjectURL(imageUrl);
         };
-        if (captionElement) {
+        if (captionElement && currentImageMetadata) {
+            captionElement.innerHTML = `
+                <strong>File:</strong> ${currentImageMetadata.filename || 'N/A'}<br>
+                <strong>Size:</strong> ${(currentImageMetadata.size / 1024).toFixed(2)} KB<br>
+                <strong>MAC:</strong> ${currentImageMetadata.mac || 'N/A'}<br>
+                <strong>Timestamp:</strong> ${new Date(currentImageMetadata.timestamp).toLocaleString("nl-NL") || 'N/A'}
+            `;
+        } else if (captionElement) {
             captionElement.textContent = `File: ${filename || 'N/A'}, Size: ${(arrayBuffer.byteLength / 1024).toFixed(2)} KB`;
         }
     } else {
@@ -68,9 +75,12 @@ function connectImageWebSocket() {
                 if (data.type === "image_metadata_ws") {
                     console.log("Image metadata received:", data.filename);
                     currentImageMetadata = {
+                        type: data.type,
                         filename: data.filename,
                         contentType: data.contentType,
-                        size: data.size
+                        size: data.size,
+                        mac: data.mac,
+                        timestamp: data.timestamp
                     };
                 } else if (data.type === "image_error_ws") {
                     console.error("Image transfer error:", data.error, data.details);
@@ -297,7 +307,7 @@ function startProgressRing(interval) {
         const offset = circumference * (1 - progress);
         circle.style.strokeDashoffset = offset;
 
-        console.log(`Elapsed: ${totalElapsed.toFixed(2)}s, Progress: ${(progress * 100).toFixed(1)}%`);
+        //console.log(`Elapsed: ${totalElapsed.toFixed(2)}s, Progress: ${(progress * 100).toFixed(1)}%`);
 
         if (progress >= 1) {
             clearInterval(intervalId);
