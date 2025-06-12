@@ -19,181 +19,97 @@ let soilMoisture;
 let timestamp;
 let interval;
 
-
-
-
-function displayImage(imageDataOrUrl, contentTypeFromArgs, filenameFromArgs, isUrl = false) {
-    const imgElement = document.getElementById('myImageElement'); 
+// --- Image Handling Functions ---
+function displayImage(arrayBuffer, contentType, filename) {
+    const imageBlob = new Blob([arrayBuffer], { type: contentType || 'image/jpeg' });
+    const imageUrl = URL.createObjectURL(imageBlob);
+    
+    const imgElement = document.getElementById('myImageElement');
     const captionElement = document.getElementById('imageCaption');
-    const errorElement = document.getElementById('imageError');
 
-    if (errorElement) errorElement.textContent = ""; 
-    if (!imgElement) {
-        console.error("Element #myImageElement niet gevonden!");
-        if (errorElement) errorElement.textContent = "Fout: HTML element #myImageElement ontbreekt.";
-        return;
-    }
-    imgElement.src = ""; // Wis direct
-
-    if (isUrl) { // Voor de "laatste afbeelding" die via URL komt
-        imgElement.src = imageDataOrUrl; 
-        imgElement.alt = filenameFromArgs || "Geladen afbeelding";
-        imgElement.onerror = () => { 
-            console.error(`Fout bij laden afbeelding van URL: ${imageDataOrUrl}`);
-            if (captionElement) captionElement.textContent = `Fout bij laden: ${filenameFromArgs || 'onbekende afbeelding'}`;
-            if (errorElement) errorElement.textContent = `Fout: Kon afbeelding niet laden van ${imageDataOrUrl}`;
-            imgElement.src = "";
+    if (imgElement) {
+        imgElement.src = imageUrl;
+        imgElement.alt = filename || "Received image";
+        imgElement.onload = () => {
+            URL.revokeObjectURL(imageUrl);
         };
-
-        // Update caption specifiek voor de URL-geladen afbeelding
-        if (captionElement && lastRequestedImageDetails) {
-            let meta = lastRequestedImageDetails; // Gebruik de opgeslagen details
-            let displayFilename = meta.filename || 'N/A';
-            let displaySize = meta.size || 0;
-            let displayMac = meta.mac || 'N/A';
-            // Bepaal timestamp: prioriteit aan client-side event, dan server opslagtijd, dan browser tijd
-            let tsSource = meta.timestamp_event ? meta.timestamp_event * 1000 : (meta.server_stored_at ? new Date(meta.server_stored_at.replace(" ", "T") + "Z").getTime() : meta.timestamp);
-            if (!tsSource) tsSource = Date.now();
-            let displayTimestamp = new Date(tsSource);
-
+        if (captionElement && currentImageMetadata) {
             captionElement.innerHTML = `
-                <strong>Bestand:</strong> ${displayFilename}<br>
-                <strong>Grootte:</strong> ${(displaySize / 1024).toFixed(2)} KB<br>
-                <strong>MAC:</strong> ${displayMac}<br>
-                <strong>Tijdstip (event/opslag):</strong> ${displayTimestamp.toLocaleString("nl-NL", { dateStyle: 'short', timeStyle: 'medium' })}
+                <strong>File:</strong> ${currentImageMetadata.filename || 'N/A'}<br>
+                <strong>Size:</strong> ${(currentImageMetadata.size / 1024).toFixed(2)} KB<br>
+                <strong>MAC:</strong> ${currentImageMetadata.mac || 'N/A'}<br>
+                <strong>Timestamp:</strong> ${new Date(currentImageMetadata.timestamp).toLocaleString("nl-NL") || 'N/A'}
             `;
         } else if (captionElement) {
-            captionElement.textContent = `Laden: ${filenameFromArgs || 'afbeelding'}...`;
+            captionElement.textContent = `File: ${filename || 'N/A'}, Size: ${(arrayBuffer.byteLength / 1024).toFixed(2)} KB`;
         }
-
-    } else { // Voor LIVE binaire afbeeldingen
-        try {
-            const imageBlob = new Blob([imageDataOrUrl], { type: contentTypeFromArgs || 'image/jpeg' });
-            const imageUrlFromBlob = URL.createObjectURL(imageBlob);
-            imgElement.src = imageUrlFromBlob;
-            imgElement.alt = filenameFromArgs || "Ontvangen afbeelding";
-            imgElement.onload = () => { URL.revokeObjectURL(imageUrlFromBlob); };
-            imgElement.onerror = () => { /* ... error handling ... */ };
-
-            // Update caption specifiek voor de live binaire afbeelding
-            if (captionElement && currentLiveImageMetadata) {
-                let meta = currentLiveImageMetadata;
-                let displayFilename = meta.filename || 'N/A';
-                let displaySize = meta.size || (imageDataOrUrl instanceof ArrayBuffer ? imageDataOrUrl.byteLength : 0);
-                let displayMac = meta.mac || 'N/A';
-                let displayTimestamp = new Date(meta.timestamp || Date.now()); // Gebruik Node-RED timestamp
-
-                captionElement.innerHTML = `
-                    <strong>Bestand (Live):</strong> ${displayFilename}<br>
-                    <strong>Grootte:</strong> ${(displaySize / 1024).toFixed(2)} KB<br>
-                    <strong>MAC:</strong> ${displayMac}<br>
-                    <strong>Tijdstip (ontvangst):</strong> ${displayTimestamp.toLocaleString("nl-NL", { dateStyle: 'short', timeStyle: 'medium' })}
-                `;
-            } else if (captionElement) {
-                captionElement.textContent = `Live afbeelding geladen (details onbekend).`;
-            }
-
-        } catch (e) { /* ... error handling ... */ return; }
+    } else {
+        console.error("Image element #myImageElement not found!");
     }
 }
 
-// --- WebSocket Functies (blijven grotendeels hetzelfde) ---
 function connectImageWebSocket() {
     imageSocket = new WebSocket(imageServerUrl);
     imageSocket.binaryType = 'arraybuffer';
 
     imageSocket.onopen = () => {
-        console.log("Verbonden met Image WebSocket server: " + imageServerUrl);
-        currentLiveImageMetadata = null; 
-        lastRequestedImageDetails = null; 
-
-        const captionElement = document.getElementById('imageCaption');
-        if(captionElement) captionElement.textContent = "Opvragen laatste afbeelding...";
-        // ... (setTimeout voor request_last_image zoals voorheen) ...
-        setTimeout(() => {
-            if (imageSocket && imageSocket.readyState === WebSocket.OPEN) {
-                try {
-                    imageSocket.send(JSON.stringify({ type: "request_last_image" }));
-                    console.log("Request 'request_last_image' verzonden.");
-                } catch (e_send) { /* ... */ }
-            } else { /* ... */ }
-        }, 100); 
+        console.log("Connected to Image WebSocket server");
+        console.log("Verzoek voor laatste afbeelding versturen...");
+        imageSocket.send(JSON.stringify({ type: "request_last_image" }));
+        currentImageMetadata = null;
     };
 
     imageSocket.onmessage = (event) => {
-        if (event.data instanceof ArrayBuffer) { // Voor LIVE image binaire data
-            console.log(`WebSocket: Binaire data (LIVE image) ontvangen (${event.data.byteLength} bytes)`);
-            if (currentLiveImageMetadata) { 
-                displayImage(event.data, currentLiveImageMetadata.contentType, currentLiveImageMetadata.filename, false);
-                currentLiveImageMetadata = null; 
-            } else { /* ... */ }
+        if (event.data instanceof ArrayBuffer) {
+            console.log(`Binary data received (${event.data.byteLength} bytes)`);
+            if (currentImageMetadata) {
+                displayImage(event.data, currentImageMetadata.contentType, currentImageMetadata.filename);
+                currentImageMetadata = null;
+            } else {
+                console.warn("Binary data received without prior metadata. Displaying as JPEG.");
+                displayImage(event.data, 'image/jpeg', 'Image_without_metadata.jpg');
+            }
         } else if (typeof event.data === 'string') {
             try {
                 const data = JSON.parse(event.data);
-                console.log("WebSocket JSON data ontvangen:", data);
+                console.log("Image JSON data received:", data);
 
-                if (data.type === "image_metadata_ws") { // Voor LIVE image metadata
-                    console.log("WebSocket: LIVE Afbeelding metadata ontvangen:", data.filename);
-                    currentLiveImageMetadata = data; // Sla ALLE live metadata op
-                    // ... (UI update voor laden live image) ...
-                } else if (data.type === "last_image_details_ws") { 
-                    console.log(`WebSocket: Details voor LAATSTE afbeelding (${data.filename}). URL: ${data.imageUrl}`);
-                    // Sla ALLE details van de laatste afbeelding op
-                    lastRequestedImageDetails = data; 
-                    if (data.imageUrl) {
-                        // De displayImage functie gebruikt nu lastRequestedImageDetails voor de caption
-                        displayImage(data.imageUrl, data.contentType, data.filename, true); 
-                    } else { /* ... error handling ... */ }
-                } else if (data.type === "image_error_ws" || data.type === "last_image_error_ws" || data.type === "last_image_none_ws") {
-                    // ... (error handling, reset beide metadata objecten) ...
-                    currentLiveImageMetadata = null; 
-                    lastRequestedImageDetails = null;
-                } // ...
-            } catch (error) { /* ... */ }
-        } // ...
+                if (data.type === "image_metadata_ws") {
+                    console.log("Image metadata received:", data.filename);
+                    currentImageMetadata = {
+                        type: data.type,
+                        filename: data.filename,
+                        contentType: data.contentType,
+                        size: data.size,
+                        mac: data.mac,
+                        timestamp: data.timestamp
+                    };
+                } else if (data.type === "image_error_ws") {
+                    console.error("Image transfer error:", data.error, data.details);
+                    const errorElement = document.getElementById('imageError');
+                    if (errorElement) errorElement.textContent = `Error: ${data.error.details || data.error}`;
+                    currentImageMetadata = null;
+                } else {
+                    console.log("Other JSON message type:", data);
+                }
+            } catch (error) {
+                console.error("Error parsing image JSON data:", error, "Received data:", event.data);
+            }
+        } else {
+            console.warn("Unknown data type received via Image WebSocket:", event.data);
+        }
     };
 
-    imageSocket.onclose = (event) => { 
-        console.log("Image WebSocket verbinding verbroken.");
-        currentLiveImageMetadata = null;
-        lastRequestedImageDetails = null;
-        setTimeout(connectImageWebSocket, 5000); 
+    imageSocket.onclose = (event) => {
+        console.log("Image WebSocket connection closed. Reason:", event.reason, "Code:", event.code);
+        currentImageMetadata = null;
+        setTimeout(connectImageWebSocket, 5000);
     };
-    imageSocket.onerror = (error) => { /* ... */ };
+
+    imageSocket.onerror = (error) => {
+        console.error("Image WebSocket error:", error);
+    };
 }
-
-
-// Functie om expliciet de laatste afbeelding op te vragen (kan aan een knop gekoppeld worden)
-function requestLastImageManually() {
-    if (imageSocket && imageSocket.readyState === WebSocket.OPEN) {
-        console.log("Handmatig verzoek voor laatste afbeelding versturen...");
-        imageSocket.send(JSON.stringify({ type: "request_last_image" }));
-        
-        const imgElement = document.getElementById('myImageElement');
-        if(imgElement) imgElement.src = ""; 
-        const captionElement = document.getElementById('imageCaption');
-        if(captionElement) captionElement.textContent = "Opvragen laatste afbeelding...";
-        const errorElement = document.getElementById('imageError');
-        if(errorElement) errorElement.textContent = "";
-    } else {
-        console.warn("Kan laatste afbeelding niet handmatig opvragen, WebSocket niet open. Probeer te verbinden...");
-        // Roep connectImageWebSocket aan; die zal bij onopen de request sturen.
-        connectImageWebSocket(); 
-    }
-}
-
-// Start de WebSocket verbinding wanneer de pagina laadt
-window.addEventListener('load', connectImageWebSocket);
-
-// Voorbeeld HTML:
-/*
-<button onclick="requestLastImageManually()">Laad Laatste Afbeelding (Handmatig)</button>
-<div>
-    <img id="myImageElement" alt="Wachten op afbeelding..." style="max-width: 80%; max-height: 70vh; display: block; margin: auto;">
-    <div id="imageCaption" style="text-align: center; margin-top: 10px;"></div>
-    <div id="imageError" style="color: red; text-align: center; margin-top: 10px;"></div>
-</div>
-*/
 
 // --- Sensor Handling Functions ---
 function connectSensorWebSocket() {
