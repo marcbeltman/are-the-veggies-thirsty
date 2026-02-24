@@ -3,6 +3,7 @@ console.log("Sensor script loaded");
 // WebSocket en timer configuratie
 const SENSOR_SERVER_URL = "wss://node-red.xyz/ws/sensorData";
 const PING_INTERVAL_MS = 30000;
+const PONG_TIMEOUT_MS = 5000;
 const RECONNECT_DELAY_MS = 5000;
 const PROGRESS_TICK_MS = 1000;
 const ANSWER_TEXT_SHADOW = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 2px 0 #000, 2px 2px 0 #000";
@@ -12,6 +13,7 @@ const DEFAULT_DUMMY_IMAGE_PATH = "images/00-veggies-under_construction.png";
 const state = {
     sensorSocket: null,
     pingIntervalId: null,
+    pongTimeoutId: null,
     progressIntervalId: null
 };
 
@@ -29,7 +31,8 @@ const ui = {
     answer: document.getElementById("answer"),
     progressRing: document.querySelector(".progress-ring"),
     progressCircle: document.querySelector(".progress-ring-circle"),
-    offlineMessage: document.querySelector(".offline-message")
+    offlineMessage: document.querySelector(".offline-message"),
+    connectionStatus: document.getElementById("connection-status")
 };
 
 // Regels voor vochtigheid -> tekst + afbeelding
@@ -46,12 +49,26 @@ function connectSensorWebSocket() {
 
     state.sensorSocket.onopen = () => {
         console.log("Connected to Node-RED WebSocket server");
+        clearTimeout(state.pongTimeoutId);
+        if (ui.connectionStatus) {
+            ui.connectionStatus.style.display = "none";
+        }
         sendSocketMessage({ type: "get_latest_data" });
 
         clearInterval(state.pingIntervalId);
         state.pingIntervalId = setInterval(() => {
             if (state.sensorSocket && state.sensorSocket.readyState === WebSocket.OPEN) {
+                console.log("📤 Ping sent");
                 sendSocketMessage({ type: "ping" });
+                
+                // Zet timeout voor pong respons
+                clearTimeout(state.pongTimeoutId);
+                state.pongTimeoutId = setTimeout(() => {
+                    console.warn("No pong received within timeout");
+                    if (ui.connectionStatus) {
+                        ui.connectionStatus.style.display = "block";
+                    }
+                }, PONG_TIMEOUT_MS);
             }
         }, PING_INTERVAL_MS);
     };
@@ -61,6 +78,12 @@ function connectSensorWebSocket() {
             const data = JSON.parse(event.data);
 
             if (data.type === "pong") {
+                console.log("📥 Pong received");
+                clearTimeout(state.pongTimeoutId);
+                state.pongTimeoutId = null;
+                if (ui.connectionStatus) {
+                    ui.connectionStatus.style.display = "none";
+                }
                 return;
             }
 
@@ -77,6 +100,10 @@ function connectSensorWebSocket() {
 
     state.sensorSocket.onclose = () => {
         console.log("Sensor WebSocket closed. Reconnecting...");
+        clearTimeout(state.pongTimeoutId);
+        if (ui.connectionStatus) {
+            ui.connectionStatus.style.display = "block";
+        }
         clearInterval(state.pingIntervalId);
         setTimeout(connectSensorWebSocket, RECONNECT_DELAY_MS);
     };
