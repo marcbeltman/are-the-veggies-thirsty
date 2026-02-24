@@ -1,0 +1,32 @@
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.*
+
+# Temporary / cache
+*.tmp
+*.temp
+.cache/
+
+# Python cache (if used)
+__pycache__/
+*.pyc
+
+# Build / dependency folders (if used later)
+node_modules/
+dist/
+build/
+
+# Project-specific folders
+remake/
+old/
