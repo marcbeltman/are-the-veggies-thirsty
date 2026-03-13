@@ -53,6 +53,7 @@ function connectSensorWebSocket() {
         if (ui.connectionStatus) {
             ui.connectionStatus.style.display = "none";
         }
+        console.log("📤 Requesting latest sensor data...");
         sendSocketMessage({ type: "get_latest_data" });
 
         clearInterval(state.pingIntervalId);
@@ -74,8 +75,10 @@ function connectSensorWebSocket() {
     };
 
     state.sensorSocket.onmessage = (event) => {
+        console.log("📥 RAW WEBSOCKET EVENT DATA:", event.data);
         try {
             const data = JSON.parse(event.data);
+            // console.log("📥 Parsed JSON data:", data); // Even uitgezet om de raw data focus te geven
 
             if (data.type === "pong") {
                 console.log("📥 Pong received");
@@ -87,14 +90,30 @@ function connectSensorWebSocket() {
                 return;
             }
 
-            if (data.sensor_data) {
-                handleSensorData(data.sensor_data);
+            if (data.type === "error") {
+                console.error("❌ Server Error:", data.message);
+                if (ui.connectionStatus) {
+                    ui.connectionStatus.innerText = `⚠️ ${data.message}`;
+                    ui.connectionStatus.style.display = "block";
+                }
                 return;
             }
 
-            console.log("Unknown message format, no sensor_data present.");
+            // Check common Node-RED patterns
+            const sensorData = data.sensor_data || 
+                               (data.payload && data.payload.sensor_data) || 
+                               (data.device ? data : null) || 
+                               (data.payload && data.payload.device ? data.payload : null);
+
+            if (sensorData && (sensorData.device || sensorData.sensor_data)) {
+                const finalData = sensorData.sensor_data || sensorData;
+                handleSensorData(finalData);
+                return;
+            }
+
+            console.warn("⚠️ Unknown message format. Raw data was:", event.data);
         } catch (error) {
-            console.error("Error processing sensor data:", error);
+            console.error("❌ Error parsing WebSocket message:", error, "Raw data was:", event.data);
         }
     };
 
